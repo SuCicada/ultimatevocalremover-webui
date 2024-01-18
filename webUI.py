@@ -253,10 +253,10 @@ uvr.cached_sources_clear()
 webui = UVRWebUI(uvr, online_data_path='models/download_checks.json')
 
 parser = argparse.ArgumentParser(description='Script to launch a webui.')
-parser.add_argument('--gradio', action='store_true', help='Share the link using gradio.')
+parser.add_argument('--share', action='store_true', help='Allow to share the gradio link.')
 args = parser.parse_args()
 
-if args.gradio:
+if args.share:
     webui.launch(share=True)
 else:
     webui.launch()
