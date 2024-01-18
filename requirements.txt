@@ -30,7 +30,7 @@ pytorch_lightning==2.0.0
 PyYAML==6.0
 resampy==0.2.2
 scipy==1.9.3
-soundfile==0.11.0
+soundfile
 soundstretch==1.2
 torch==2.0.1
 tqdm
