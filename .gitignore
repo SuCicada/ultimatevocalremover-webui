@@ -8,3 +8,10 @@ __pycache__/
 # models
 *.pth
 *.onnx
+
+.idea
+*.iml
+/models/**/*.onnx
+/models/**/*.pth
+/output
+/out
