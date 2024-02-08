@@ -127,20 +127,20 @@ remove_temps(os.path.join(BASE_PATH, 'img'))
 
 if not os.path.isdir(ENSEMBLE_TEMP_PATH):
     os.mkdir(ENSEMBLE_TEMP_PATH)
-    
+
 if not os.path.isdir(SAMPLE_CLIP_PATH):
     os.mkdir(SAMPLE_CLIP_PATH)
 
 model_hash_table = {}
 data = load_data()
-    
+
 class ModelData():
-    def __init__(self, model_name: str, 
-                 selected_process_method=ENSEMBLE_MODE, 
-                 is_secondary_model=False, 
-                 primary_model_primary_stem=None, 
-                 is_primary_model_primary_stem_only=False, 
-                 is_primary_model_secondary_stem_only=False, 
+    def __init__(self, model_name: str,
+                 selected_process_method=ENSEMBLE_MODE,
+                 is_secondary_model=False,
+                 primary_model_primary_stem=None,
+                 is_primary_model_primary_stem_only=False,
+                 is_primary_model_secondary_stem_only=False,
                  is_pre_proc_model=False,
                  is_dry_check=False):
 
@@ -232,7 +232,7 @@ class ModelData():
                         self.is_vr_51_model = True
                 else:
                     self.model_status = False
-                
+
         if self.process_method == MDX_ARCH_TYPE:
             self.is_secondary_model_activated = root.mdx_is_secondary_model_activate_var.get() if not is_secondary_model else False
             self.margin = int(root.margin_var.get())
@@ -263,14 +263,14 @@ class ModelData():
             self.segment = root.segment_var.get()
             self.is_chunk_demucs = root.is_chunk_demucs_var.get()
             self.is_demucs_combine_stems = root.is_demucs_combine_stems_var.get()
-            self.is_primary_stem_only = root.is_primary_stem_only_var.get() if self.is_ensemble_mode else root.is_primary_stem_only_Demucs_var.get() 
+            self.is_primary_stem_only = root.is_primary_stem_only_var.get() if self.is_ensemble_mode else root.is_primary_stem_only_Demucs_var.get()
             self.is_secondary_stem_only = root.is_secondary_stem_only_var.get() if self.is_ensemble_mode else root.is_secondary_stem_only_Demucs_var.get()
             self.get_demucs_model_path()
             self.get_demucs_model_data()
 
         self.model_basename = os.path.splitext(os.path.basename(self.model_path))[0] if self.model_status else None
         self.pre_proc_model_activated = self.pre_proc_model_activated if not self.is_secondary_model else False
-        
+
         self.is_primary_model_primary_stem_only = is_primary_model_primary_stem_only
         self.is_primary_model_secondary_stem_only = is_primary_model_secondary_stem_only
 
@@ -286,11 +286,11 @@ class ModelData():
                 self.demucs_4_stem_added_count = self.demucs_4_stem_added_count - 1 if self.is_secondary_model_activated else self.demucs_4_stem_added_count
                 if self.is_secondary_model_activated:
                     self.secondary_model_4_stem_model_names_list = [None if i is None else i.model_basename for i in self.secondary_model_4_stem]
-                    self.is_demucs_4_stem_secondaries = True 
+                    self.is_demucs_4_stem_secondaries = True
             else:
                 primary_stem = self.ensemble_primary_stem if self.is_ensemble_mode and self.process_method == DEMUCS_ARCH_TYPE else self.primary_stem
                 self.secondary_model_data(primary_stem)
-                
+
         if self.process_method == DEMUCS_ARCH_TYPE and not is_secondary_model:
             if self.demucs_stem_count >= 3 and self.pre_proc_model_activated:
                 self.pre_proc_model_activated = True
@@ -304,30 +304,30 @@ class ModelData():
         self.is_secondary_model_activated = False if not self.secondary_model else True
         if self.secondary_model:
             self.is_secondary_model_activated = False if self.secondary_model.model_basename == self.model_basename else True
-              
+
     def get_mdx_model_path(self):
-        
+
         if self.model_name.endswith(CKPT):
             # self.chunks = 0
             # self.is_mdx_batch_mode = True
             self.is_mdx_ckpt = True
-            
+
         ext = '' if self.is_mdx_ckpt else ONNX
-        
+
         for file_name, chosen_mdx_model in root.mdx_name_select_MAPPER.items():
             if self.model_name in chosen_mdx_model:
                 self.model_path = os.path.join(MDX_MODELS_DIR, f"{file_name}{ext}")
                 break
         else:
             self.model_path = os.path.join(MDX_MODELS_DIR, f"{self.model_name}{ext}")
-            
+
         self.mixer_path = os.path.join(MDX_MODELS_DIR, f"mixer_val.ckpt")
-    
+
     def get_demucs_model_path(self):
-        
+
         demucs_newer = [True for x in DEMUCS_NEWER_TAGS if x in self.model_name]
         demucs_model_dir = DEMUCS_NEWER_REPO_DIR if demucs_newer else DEMUCS_MODELS_DIR
-        
+
         for file_name, chosen_model in root.demucs_name_select_MAPPER.items():
             if self.model_name in chosen_model:
                 self.model_path = os.path.join(demucs_model_dir, file_name)
@@ -346,7 +346,7 @@ class ModelData():
         self.demucs_source_list = DEMUCS_2_SOURCE if DEMUCS_UVR_MODEL in self.model_name else DEMUCS_4_SOURCE
         self.demucs_source_map = DEMUCS_2_SOURCE_MAPPER if DEMUCS_UVR_MODEL in self.model_name else DEMUCS_4_SOURCE_MAPPER
         self.demucs_stem_count = 2 if DEMUCS_UVR_MODEL in self.model_name else 4
-        
+
         if not self.is_ensemble_mode:
             self.primary_stem = PRIMARY_STEM if self.demucs_stems == ALL_STEMS else self.demucs_stems
             self.secondary_stem = STEM_PAIR_MAPPER[self.primary_stem]
@@ -368,7 +368,7 @@ class ModelData():
 
     def get_model_hash(self):
         self.model_hash = None
-        
+
         if not os.path.isfile(self.model_path):
             self.model_status = False
             self.model_hash is None
@@ -378,7 +378,7 @@ class ModelData():
                     if self.model_path == key:
                         self.model_hash = value
                         break
-                    
+
             if not self.model_hash:
                 try:
                     with open(self.model_path, 'rb') as f:
@@ -386,7 +386,7 @@ class ModelData():
                         self.model_hash = hashlib.md5(f.read()).hexdigest()
                 except:
                     self.model_hash = hashlib.md5(open(self.model_path,'rb').read()).hexdigest()
-                    
+
                 table_entry = {self.model_path: self.model_hash}
                 model_hash_table.update(table_entry)
 
@@ -417,7 +417,7 @@ class Ensembler():
 
     def ensemble_outputs(self, audio_file_base, export_path, stem, is_4_stem=False, is_inst_mix=False):
         """Processes the given outputs and ensembles them with the chosen algorithm"""
-        
+
         if is_4_stem:
             algorithm = root.ensemble_type_var.get()
             stem_tag = stem
@@ -432,11 +432,11 @@ class Ensembler():
         stem_outputs = self.get_files_to_ensemble(folder=export_path, prefix=audio_file_base, suffix=f"_({stem_tag}).wav")
         audio_file_output = f"{self.is_testing_audio}{audio_file_base}{self.chosen_ensemble}_({stem_tag})"
         stem_save_path = os.path.join('{}'.format(self.main_export_path),'{}.wav'.format(audio_file_output))
-        
+
         if stem_outputs:
             spec_utils.ensemble_inputs(stem_outputs, algorithm, self.is_normalization, self.wav_type_set, stem_save_path)
             save_format(stem_save_path, self.save_format, self.mp3_bit_set)
-        
+
         if self.is_save_all_outputs_ensemble:
             for i in stem_outputs:
                 save_format(i, self.save_format, self.mp3_bit_set)
@@ -449,9 +449,9 @@ class Ensembler():
 
     def ensemble_manual(self, audio_inputs, audio_file_base, is_bulk=False):
         """Processes the given outputs and ensembles them with the chosen algorithm"""
-        
+
         is_mv_sep = True
-        
+
         if is_bulk:
             number_list = list(set([os.path.basename(i).split("_")[0] for i in audio_inputs]))
             for n in number_list:
@@ -464,9 +464,9 @@ class Ensembler():
                 self.ensemble_manual_process(current_list, audio_file_base, is_bulk)
         else:
             self.ensemble_manual_process(audio_inputs, audio_file_base, is_bulk)
-            
+
     def ensemble_manual_process(self, audio_inputs, audio_file_base, is_bulk):
-        
+
         algorithm = root.choose_algorithm_var.get()
         algorithm_text = "" if is_bulk else f"_({root.choose_algorithm_var.get()})"
         stem_save_path = os.path.join('{}'.format(self.main_export_path),'{}{}{}.wav'.format(self.is_testing_audio, audio_file_base, algorithm_text))
@@ -475,17 +475,17 @@ class Ensembler():
 
     def get_files_to_ensemble(self, folder="", prefix="", suffix=""):
         """Grab all the files to be ensembled"""
-        
+
         return [os.path.join(folder, i) for i in os.listdir(folder) if i.startswith(prefix) and i.endswith(suffix)]
 
 
 def secondary_stem(stem):
     """Determines secondary stem"""
-    
+
     for key, value in STEM_PAIR_MAPPER.items():
         if stem in key:
             secondary_stem = value
-    
+
     return secondary_stem
 
 
@@ -497,7 +497,7 @@ class UVRInterface:
         if arch_type == ENSEMBLE_STEM_CHECK:
             model_data = self.model_data_table
             missing_models = [model.model_status for model in model_data if not model.model_status]
-            
+
             if missing_models or not model_data:
                 model_data: List[ModelData] = [ModelData(model_name, is_dry_check=is_dry_check) for model_name in self.ensemble_model_list]
                 self.model_data_table = model_data
@@ -523,9 +523,9 @@ class UVRInterface:
             print('Audioread failed to get duration. Trying Librosa...')
             y, sr = librosa.load(audio_file, mono=False, sr=44100)
             track_length = int(librosa.get_duration(y=y, sr=sr))
-        
+
         clip_duration = int(root.model_sample_mode_duration_var.get())
-        
+
         if track_length >= clip_duration:
             offset_cut = track_length//3
             off_cut = offset_cut + track_length
@@ -539,13 +539,13 @@ class UVRInterface:
         sample = librosa.load(audio_file, offset=offset_cut, duration=clip_duration, mono=False, sr=44100)[0].T
         audio_sample = os.path.join(sample_path, f'{os.path.splitext(os.path.basename(audio_file))[0]}_{name_apped}sample.wav')
         sf.write(audio_sample, sample, 44100)
-        
+
         return audio_sample
-    
+
     def verify_audio(self, audio_file, is_process=True, sample_path=None):
         is_good = False
         error_data = ''
-        
+
         if os.path.isfile(audio_file):
             try:
                 librosa.load(audio_file, duration=3, mono=False, sr=44100) if not type(sample_path) is str else self.create_sample(audio_file, sample_path)
@@ -569,7 +569,7 @@ class UVRInterface:
         self.vr_cache_source_mapper = {}
         self.mdx_cache_source_mapper = {}
         self.demucs_cache_source_mapper = {}
-      
+
     def cached_model_source_holder(self, process_method, sources, model_name=None):
         if process_method == VR_ARCH_TYPE:
             self.vr_cache_source_mapper = {**self.vr_cache_source_mapper, **{model_name: sources}}
@@ -577,22 +577,22 @@ class UVRInterface:
             self.mdx_cache_source_mapper = {**self.mdx_cache_source_mapper, **{model_name: sources}}
         if process_method == DEMUCS_ARCH_TYPE:
             self.demucs_cache_source_mapper = {**self.demucs_cache_source_mapper, **{model_name: sources}}
-                             
+
     def cached_source_callback(self, process_method, model_name=None):
         model, sources = None, None
-        
+
         if process_method == VR_ARCH_TYPE:
             mapper = self.vr_cache_source_mapper
         if process_method == MDX_ARCH_TYPE:
             mapper = self.mdx_cache_source_mapper
         if process_method == DEMUCS_ARCH_TYPE:
             mapper = self.demucs_cache_source_mapper
-        
+
         for key, value in mapper.items():
             if model_name in key:
                 model = key
                 sources = value
-        
+
         return model, sources
 
     def cached_source_model_list_check(self, model_list: List[ModelData]):
@@ -607,7 +607,7 @@ class UVRInterface:
         self.mdx_secondary_model_names = secondary_model_names(MDX_ARCH_TYPE)
         self.demucs_secondary_model_names = [model.secondary_model.model_basename if model.is_secondary_model_activated and model.process_method == DEMUCS_ARCH_TYPE and not model.secondary_model is None else None for model in model_list]
         self.demucs_pre_proc_model_name = [model.pre_proc_model.model_basename if model.pre_proc_model else None for model in model_list]#list(dict.fromkeys())
-        
+
         for model in model_list:
             if model.process_method == DEMUCS_ARCH_TYPE and model.is_demucs_4_stem_secondaries:
                 if not model.is_4_stem_ensemble:
@@ -616,7 +616,7 @@ class UVRInterface:
                 else:
                     for i in model.secondary_model_4_stem_model_names_list:
                         self.demucs_secondary_model_names.append(i)
-        
+
         self.all_models = self.vr_primary_model_names + self.mdx_primary_model_names + self.demucs_primary_model_names + self.vr_secondary_model_names + self.mdx_secondary_model_names + self.demucs_secondary_model_names + self.demucs_pre_proc_model_name
 
     def process(self, model_name, arch_type, audio_file, export_path, is_model_sample_mode=False, is_4_stem_ensemble=False, set_progress_func=None, console_write=print) -> SeperateAttributes:
@@ -648,7 +648,7 @@ class UVRInterface:
         if not is_ensemble:
             export_path = os.path.join(Path(export_path), model.model_basename, os.path.splitext(os.path.basename(audio_file))[0])
             if not os.path.isdir(export_path):
-                os.makedirs(export_path) 
+                os.makedirs(export_path)
 
         if set_progress_func is None:
             pbar = tqdm(total=1)
@@ -691,7 +691,7 @@ class UVRInterface:
         if is_ensemble:
             audio_file_base = audio_file_base.replace(f"_{model.model_basename}", "")
             console_write(ENSEMBLING_OUTPUTS)
-            
+
             if is_4_stem_ensemble:
                 for output_stem in DEMUCS_4_SOURCE_LIST:
                     ensemble.ensemble_outputs(audio_file_base, export_path, output_stem, is_4_stem=True)
@@ -709,7 +709,7 @@ class UVRInterface:
                 os.remove(audio_file)
 
         torch.cuda.empty_cache()
-        
+
         if is_ensemble and len(os.listdir(export_path)) == 0:
             shutil.rmtree(export_path)
         console_write(f'Process Complete, using time: {time_elapsed()}\nOutput path: {export_path}')
@@ -720,10 +720,10 @@ class UVRInterface:
 class RootWrapper:
     def __init__(self, var) -> None:
         self.var=var
-    
+
     def set(self, val):
         self.var=val
-    
+
     def get(self):
         return self.var
 
@@ -734,7 +734,7 @@ class FakeRoot:
         self.mdx_hash_MAPPER = load_model_hash_data(MDX_HASH_JSON)
         self.mdx_name_select_MAPPER = load_model_hash_data(MDX_MODEL_NAME_SELECT)
         self.demucs_name_select_MAPPER = load_model_hash_data(DEMUCS_MODEL_NAME_SELECT)
-    
+
     def __getattribute__(self, __name: str):
         try:
             return super().__getattribute__(__name)
@@ -745,14 +745,14 @@ class FakeRoot:
 
     def load_saved_settings(self, loaded_setting: dict, process_method=None):
         """Loads user saved application settings or resets to default"""
-        
+
         for key, value in DEFAULT_DATA.items():
             if not key in loaded_setting.keys():
                 loaded_setting = {**loaded_setting, **{key:value}}
                 loaded_setting['batch_size'] = DEF_OPT
-        
+
         is_ensemble = True if process_method == ENSEMBLE_MODE else False
-        
+
         if not process_method or process_method == VR_ARCH_PM or is_ensemble:
             self.vr_model_var.set(loaded_setting['vr_model'])
             self.aggression_setting_var.set(loaded_setting['aggression_setting'])
@@ -773,7 +773,7 @@ class FakeRoot:
             self.vr_other_secondary_model_scale_var.set(loaded_setting['vr_other_secondary_model_scale'])
             self.vr_bass_secondary_model_scale_var.set(loaded_setting['vr_bass_secondary_model_scale'])
             self.vr_drums_secondary_model_scale_var.set(loaded_setting['vr_drums_secondary_model_scale'])
-        
+
         if not process_method or process_method == DEMUCS_ARCH_TYPE or is_ensemble:
             self.demucs_model_var.set(loaded_setting['demucs_model'])
             self.segment_var.set(loaded_setting['segment'])
@@ -801,7 +801,7 @@ class FakeRoot:
             self.demucs_pre_proc_model_var.set(data['demucs_pre_proc_model'])
             self.is_demucs_pre_proc_model_activate_var.set(data['is_demucs_pre_proc_model_activate'])
             self.is_demucs_pre_proc_model_inst_mix_var.set(data['is_demucs_pre_proc_model_inst_mix'])
-        
+
         if not process_method or process_method == MDX_ARCH_TYPE or is_ensemble:
             self.mdx_net_model_var.set(loaded_setting['mdx_net_model'])
             self.chunks_var.set(loaded_setting['chunks'])
@@ -820,7 +820,7 @@ class FakeRoot:
             self.mdx_other_secondary_model_scale_var.set(loaded_setting['mdx_other_secondary_model_scale'])
             self.mdx_bass_secondary_model_scale_var.set(loaded_setting['mdx_bass_secondary_model_scale'])
             self.mdx_drums_secondary_model_scale_var.set(loaded_setting['mdx_drums_secondary_model_scale'])
-        
+
         if not process_method or is_ensemble:
             self.is_save_all_outputs_ensemble_var.set(loaded_setting['is_save_all_outputs_ensemble'])
             self.is_append_ensemble_name_var.set(loaded_setting['is_append_ensemble_name'])
@@ -839,11 +839,11 @@ class FakeRoot:
             self.save_format_var.set(loaded_setting['save_format'])
             self.wav_type_set_var.set(loaded_setting['wav_type_set'])
             self.user_code_var.set(loaded_setting['user_code'])
-            
+
         self.is_gpu_conversion_var.set(loaded_setting['is_gpu_conversion'])
         self.is_normalization_var.set(loaded_setting['is_normalization'])
         self.help_hints_var.set(loaded_setting['help_hints_var'])
-        
+
         self.model_sample_mode_var.set(loaded_setting['model_sample_mode'])
         self.model_sample_mode_duration_var.set(loaded_setting['model_sample_mode_duration'])
 

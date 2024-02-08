@@ -108,6 +108,7 @@ class UVRWebUI:
             checkbox.change(exclusive_onchange(i, callback), inputs=checkboxes, outputs=checkboxes)
 
     def process(self, input_audio, input_filename, model_name, arch, setting1, setting2, progress=gr.Progress()):
+        print( model_name, arch, setting1, setting2)
         def set_progress_func(step, inference_iterations=0):
             progress_curr = step + inference_iterations
             progress(progress_curr)
