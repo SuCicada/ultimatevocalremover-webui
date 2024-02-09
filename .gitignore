@@ -15,4 +15,3 @@ __pycache__/
 /models/**/*.pth
 /output
 /out
-/models/download_checks.json5
