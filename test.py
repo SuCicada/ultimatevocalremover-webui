@@ -10,6 +10,8 @@ import numpy as np
 import argparse
 
 import gradio as gr
+import torch
+
 from UVR_interface import root, UVRInterface, VR_MODELS_DIR, MDX_MODELS_DIR, DEMUCS_MODELS_DIR
 from gui_data.constants import *
 from typing import List, Dict, Callable, Union
@@ -81,6 +83,9 @@ def process(input_filename, model_name, arch, setting1, setting2):
 
 input_dir = sys.argv[1]
 output_dir = sys.argv[2]
+
+device = "gpu" if torch.cuda.is_available() else "cpu"
+root.is_gpu_conversion_var.set(device == "gpu")
 
 files = os.listdir(input_dir)
 for file in files:
